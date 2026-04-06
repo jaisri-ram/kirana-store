@@ -861,7 +861,7 @@ function renderProducts(items) {
       <div class="product-body">
         <div class="product-name">${p.name}</div>
         ${p.nameTel ? `<div class="product-name-tel">${p.nameTel}</div>` : ''}
-        <div class="product-unit">${p.unit || ''}</div>
+        <div class="product-unit">${p.price +'/'+p.unit || ''}</div>
         ${priceHtml}
         ${variantsHtml}
         ${qtyControls}
