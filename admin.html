@@ -952,6 +952,79 @@ function closeModal() {
 //  SAVE ITEM — Step 1: image base64 → Step 2: other details
 // ══════════════════════════════════════════════════════════════
 
+// async function saveItem() {
+//   const name  = document.getElementById("fName").value.trim();
+//   const price = document.getElementById("fPrice").value.trim();
+//   if (!name || !price) { alert("Name and price are required!"); return; }
+
+//   const saveBtn = document.querySelector(".save-btn");
+//   saveBtn.textContent = "⏳ Saving...";
+//   saveBtn.disabled = true;
+
+//   try {
+//     // ── STEP 1: Save image base64 to imageUrl column (only if new image chosen) ──
+//     if (uploadedImageBase64) {
+//       saveBtn.textContent = "⏳ Saving image...";
+
+//       // For new items we generate the ID here so both calls use the same one
+//       const tempId = editingId || ("P" + Date.now());
+//       if (!editingId) window._pendingNewId = tempId;
+
+//       const imgAction = editingId ? "updateProductImage" : "addProductImage";
+//       const imgResult = await adminCall({
+//         action: imgAction,
+//         id: tempId,
+//         imageBase64: uploadedImageBase64
+//       });
+
+//       if (!imgResult || !imgResult.success) {
+//         alert("❌ Image save failed: " + (imgResult?.error || "unknown"));
+//         saveBtn.textContent = "💾 Save Item";
+//         saveBtn.disabled = false;
+//         return;
+//       }
+//     }
+
+//     // ── STEP 2: Save all other details — imageUrl column is NOT touched ──
+//     saveBtn.textContent = "⏳ Saving details...";
+
+//     const itemId = editingId || window._pendingNewId || ("P" + Date.now());
+//     const detailAction = editingId ? "updateProductDetails" : "addProductDetails";
+
+//     const itemData = {
+//       action:     detailAction,
+//       id:         itemId,
+//       name,
+//       nameTel:    document.getElementById("fNameTel").value.trim(),
+//       category:   document.getElementById("fCat").value.trim()        || "General",
+//       price:      parseFloat(price),
+//       mrp:        document.getElementById("fMrp").value.trim()        || "",
+//       unit:       document.getElementById("fUnit").value.trim()       || "per unit",
+//       qtyOptions: document.getElementById("fQtyOptions").value.trim() || ""
+//       // ✅ No imageBase64 / imageUrl here — image column untouched in step 2
+//     };
+
+//     const result = await adminCall(itemData);
+
+//     if (result && result.success) {
+//       alert("✅ Item saved successfully!");
+//       uploadedImageBase64 = "";
+//       window._pendingNewId = null;
+//       clearImage();
+//       closeModal();
+//       loadItems();
+//     } else {
+//       alert("❌ Details save failed: " + (result?.error || "Unknown error"));
+//     }
+
+//   } catch(err) {
+//     alert("❌ Network error: " + err.message);
+//   }
+
+//   saveBtn.textContent = "💾 Save Item";
+//   saveBtn.disabled = false;
+// }
+
 async function saveItem() {
   const name  = document.getElementById("fName").value.trim();
   const price = document.getElementById("fPrice").value.trim();
@@ -961,22 +1034,18 @@ async function saveItem() {
   saveBtn.textContent = "⏳ Saving...";
   saveBtn.disabled = true;
 
+  // Generate a stable ID once — used in both steps
+  const itemId = editingId || ("P" + Date.now());
+
   try {
-    // ── STEP 1: Save image base64 to imageUrl column (only if new image chosen) ──
+    // ── STEP 1: Save image only (runs only when a new image is selected) ──
     if (uploadedImageBase64) {
       saveBtn.textContent = "⏳ Saving image...";
-
-      // For new items we generate the ID here so both calls use the same one
-      const tempId = editingId || ("P" + Date.now());
-      if (!editingId) window._pendingNewId = tempId;
-
-      const imgAction = editingId ? "updateProductImage" : "addProductImage";
       const imgResult = await adminCall({
-        action: imgAction,
-        id: tempId,
+        action:      editingId ? "updateProductImage" : "addProductImage",
+        id:          itemId,
         imageBase64: uploadedImageBase64
       });
-
       if (!imgResult || !imgResult.success) {
         alert("❌ Image save failed: " + (imgResult?.error || "unknown"));
         saveBtn.textContent = "💾 Save Item";
@@ -985,13 +1054,23 @@ async function saveItem() {
       }
     }
 
-    // ── STEP 2: Save all other details — imageUrl column is NOT touched ──
+    // ── STEP 2: Save all details (never touches imageUrl column) ──
+    // For NEW items:
+    //   - If Step 1 ran  → row already exists, use "addProductDetails" to fill it
+    //   - If Step 1 skipped (no image) → use "addProductDetailsNew" to CREATE the row
+    // For EDIT items: always use "updateProductDetails"
     saveBtn.textContent = "⏳ Saving details...";
 
-    const itemId = editingId || window._pendingNewId || ("P" + Date.now());
-    const detailAction = editingId ? "updateProductDetails" : "addProductDetails";
+    let detailAction;
+    if (editingId) {
+      detailAction = "updateProductDetails";       // existing row, update fields only
+    } else if (uploadedImageBase64) {
+      detailAction = "addProductDetails";          // row was pre-created in Step 1
+    } else {
+      detailAction = "addProductDetailsNew";       // no Step 1 ran, must create row now
+    }
 
-    const itemData = {
+    const result = await adminCall({
       action:     detailAction,
       id:         itemId,
       name,
@@ -1001,15 +1080,11 @@ async function saveItem() {
       mrp:        document.getElementById("fMrp").value.trim()        || "",
       unit:       document.getElementById("fUnit").value.trim()       || "per unit",
       qtyOptions: document.getElementById("fQtyOptions").value.trim() || ""
-      // ✅ No imageBase64 / imageUrl here — image column untouched in step 2
-    };
-
-    const result = await adminCall(itemData);
+    });
 
     if (result && result.success) {
       alert("✅ Item saved successfully!");
       uploadedImageBase64 = "";
-      window._pendingNewId = null;
       clearImage();
       closeModal();
       loadItems();
