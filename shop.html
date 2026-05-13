@@ -1180,10 +1180,21 @@ async function placeOrder() {
     // Send as base64 encoded GET request — same method as admin.html
     // This avoids CORS issues and works reliably with Apps Script
     const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(orderData))));
-    const res = await fetch(
-      `${APPS_SCRIPT_URL}?d=${encodeURIComponent(encoded)}`,
-      { redirect: "follow" }
-    );
+    // Apps Script rejects POST with application/json (triggers CORS preflight → 405).
+    // Sending as text/plain skips the preflight and doPost() receives it fine.
+    // We wrap in a FormData-style key so doPost can read e.postData.contents.
+    let res;
+    try {
+      res = await fetch(APPS_SCRIPT_URL, {
+        method: "POST",
+        redirect: "follow",
+        headers: { "Content-Type": "text/plain" },
+        body: JSON.stringify({ d: encoded })
+      });
+    } catch(_) {
+      // Final fallback: split into two GET requests if POST is blocked entirely
+      res = await fetch(`${APPS_SCRIPT_URL}?d=${encodeURIComponent(encoded)}`, { redirect: "follow" });
+    }
     const result = await res.json();
     if (result.success) {
       showSuccess();
