@@ -5,19 +5,40 @@
 body { background: #F5F5F5; }
 
 /* ── HEADER ─────────────────────────────────── */
-header {
+/* header {
   background: linear-gradient(135deg, #1A237E, #283593);
   color: white;
   padding: 16px 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+} */
+.contact-overlay {
+    background: #8B0000;
+    color: white;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    padding: 10px;
+    font-weight: bold;
+    flex-wrap: wrap;
 }
-.header-title {
+.store-header {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+}
+.store-header img {
+    width: 100%;
+    height: auto;        /* Desktop */
+    object-fit: cover;    /* Fill entire header */
+    display: block;
+}
+/* .header-title {
   font-family: 'Baloo 2', cursive;
   font-size: 20px;
   font-weight: 800;
-}
+} */
 .header-sub { font-size: 12px; opacity: 0.7; margin-top: 2px; }
 .admin-header-right { display: flex; align-items: center; gap: 10px; }
 
