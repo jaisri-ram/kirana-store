@@ -40,7 +40,17 @@ body { background: #F5F5F5; }
   font-weight: 800;
 } */
 .header-sub { font-size: 12px; opacity: 0.7; margin-top: 2px; }
-.admin-header-right { display: flex; align-items: center; gap: 10px; }
+/* .admin-header-right { display: flex; align-items: center; gap: 10px; } */
+
+.admin-header-right {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+
+    display: flex;
+    gap: 10px;
+}
+
 
 /* ── TABS ────────────────────────────────────── */
 .tabs {
