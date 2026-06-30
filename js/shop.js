@@ -361,6 +361,7 @@ async function placeOrder() {
     }
     const result = await res.json();
     if (result.success) {
+      btn.disabled    = false;
       showSuccess();
     } else {
       throw new Error(result.error || "unknown");
