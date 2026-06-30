@@ -3,7 +3,8 @@
 // ─────────────────────────────────────────────
 
 // ✏️ OWNER: Paste your Apps Script URL here (one place for both pages)
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyVsJX5ZOgLcPSE09tUj1oQ3YYfSSqW8P8W03itJ5df2-XzcEx5HeXco_HsHbDsZZ7u/exec";
+// const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyVsJX5ZOgLcPSE09tUj1oQ3YYfSSqW8P8W03itJ5df2-XzcEx5HeXco_HsHbDsZZ7u/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwBnSu7DDOT6NXTEAyn_MKxJj4f330m-2_leDxJmqMprs4V7x0xMVHkwhhnjSrrMHz9yQ/exec";
 
 const APPS_SCRIPT_PLACEHOLDER = "https://script.google.com/macros/s......";
 const DEFAULT_PASSWORD = "kirana123";
