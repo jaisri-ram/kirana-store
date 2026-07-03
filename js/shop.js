@@ -280,8 +280,22 @@ function renderCartDrawer() {
     </div>`;
   }).join('');
 
-  const total = items.reduce((s, i) => s + i.price * i.qty, 0);
-  document.getElementById("totalAmount").textContent = `₹${total}`;
+  const total = items.reduce((s, i) => s + i.price * i.qty, 0);const mrptotal = items.reduce((s, i) => s + i.mrp * i.qty, 0);
+  const discounttotal = mrptotal - total;
+  const grandTotal = parseFloat(total);
+  let finalPrice = 0;
+  if (grandTotal >= 500) {
+    finalPrice = grandTotal;
+      document.getElementById('shippingfee').innerHTML =
+          '<span class="free-delivery">₹30</span> <span class="free-text">FREE</span>';
+  } else {
+      finalPrice = grandTotal + 30;
+      document.getElementById('shippingfee').innerHTML = '₹30';
+  }
+  
+  document.getElementById("totalAmount").textContent = `₹${finalPrice}`;
+  document.getElementById("totalMRP").textContent = `₹${mrptotal}`;
+  document.getElementById("totalDiscount").textContent = `₹${discounttotal}`;
   totalDiv.style.display  = "flex";
   formSec.style.display   = "block";
 }
@@ -328,6 +342,24 @@ async function placeOrder() {
   btn.disabled    = true;
   btn.textContent = "Placing order... ఆర్డర్ పెడుతున్నాం...";
 
+  const subtotal = Object.values(cart).reduce(
+    (sum, item) => sum + (item.price * item.qty),
+    0
+  );
+  
+  const totalMRP = Object.values(cart).reduce(
+    (sum, item) => sum + ((item.mrp || item.price) * item.qty),
+    0
+  );
+  
+  const discount = totalMRP - subtotal;
+  
+  // Free delivery for orders >= 500
+  const shippingFee = subtotal >= 500 ? 0 : 30;
+  
+  // Final payable amount
+  const grandTotal = subtotal + shippingFee;
+    
   const orderData = {
     action:      "placeOrder",
     customer:    { name, phone, address, notes },
@@ -338,7 +370,11 @@ async function placeOrder() {
       price: i.price,
       total: i.price * i.qty
     })),
-    totalAmount: Object.values(cart).reduce((s, i) => s + i.price * i.qty, 0),
+    totalMRP: totalMRP,
+    totalDiscount: discount,
+    shippingFee: shippingFee,
+    totalAmount: subtotal,
+    grandTotal: grandTotal,
     timestamp:   new Date().toISOString()
   };
 
