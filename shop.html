@@ -74,11 +74,33 @@
     <div class="cart-items" id="cartItemsList"></div>
 
     <div class="cart-total" id="cartTotal" style="display:none">
-      <div>
-        <div class="cart-total-label">Total Amount</div>
-        <div class="telugu" style="font-size:11px;color:var(--text-soft)">మొత్తం</div>
+
+      <div class="price-breakup">
+
+        <div class="price-row">
+          <span>MRP</span>
+          <span id="totalMRP">₹0</span>
+        </div>
+
+        <div class="price-row">
+          <span>Delivery Fee</span>
+          <span id="shippingfee">₹30</span>
+        </div>
+
+        <div class="price-row">
+          <span>Discount</span>
+          <span id="totalDiscount" class="discount-value">-₹0</span>
+        </div>
+
+        <hr class="price-divider">
+
+        <div class="grand-total-row">
+          <span>Total Price</span>
+          <span id="totalAmount">₹0</span>
+        </div>
+
       </div>
-      <div class="cart-total-amount" id="totalAmount">₹0</div>
+
     </div>
 
     <div class="order-form" id="orderFormSection" style="display:none">
