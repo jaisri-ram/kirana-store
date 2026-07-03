@@ -287,7 +287,7 @@ function renderCartDrawer() {
   if (grandTotal >= 1000) {
     finalPrice = grandTotal;
       document.getElementById('shippingfee').innerHTML =
-          '<span class="free-delivery">₹30</span> <span class="free-text">FREE</span>';
+          '<span class="free-delivery strike-price">₹30</span> <span class="free-delivery">FREE</span>';
   } else {
       finalPrice = grandTotal + 30;
       document.getElementById('shippingfee').innerHTML = '₹30';
