@@ -284,7 +284,7 @@ function renderCartDrawer() {
   const discounttotal = mrptotal - total;
   const grandTotal = parseFloat(total);
   let finalPrice = 0;
-  if (grandTotal >= 500) {
+  if (grandTotal >= 1000) {
     finalPrice = grandTotal;
       document.getElementById('shippingfee').innerHTML =
           '<span class="free-delivery">₹30</span> <span class="free-text">FREE</span>';
@@ -354,8 +354,8 @@ async function placeOrder() {
   
   const discount = totalMRP - subtotal;
   
-  // Free delivery for orders >= 500
-  const shippingFee = subtotal >= 500 ? 0 : 30;
+  // Free delivery for orders >= 1000
+  const shippingFee = subtotal >= 1000 ? 0 : 30;
   
   // Final payable amount
   const grandTotal = subtotal + shippingFee;
