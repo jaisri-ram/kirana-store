@@ -478,17 +478,55 @@ header::after {
   margin: 12px 20px;
   background: var(--saffron-glow);
   border-radius: 12px;
-  padding: 14px 16px;
+  padding: 16px;
+}
+
+.price-breakup {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.price-row {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  font-size: 14px;
+  color: #555;
 }
-.cart-total-label { font-size: 14px; color: var(--text-mid); }
-.cart-total-amount {
-  font-family: 'Baloo 2', cursive;
-  font-size: 22px;
-  font-weight: 800;
+
+.price-divider {
+  border: none;
+  border-top: 1px dashed #ccc;
+  margin: 4px 0;
+}
+
+.grand-total-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.grand-total-row span:last-child {
   color: var(--saffron);
+  font-size: 24px;
+  font-weight: 800;
+}
+
+.discount-value {
+  color: #16a34a;
+  font-weight: 700;
+}
+
+.free-delivery {
+  color: #16a34a;
+  font-weight: 700;
+}
+
+.strike-price {
+  text-decoration: line-through;
+  color: #888;
 }
 .empty-cart { text-align: center; padding: 40px 20px; color: var(--text-soft); }
 .empty-cart .emoji { font-size: 48px; margin-bottom: 12px; }
