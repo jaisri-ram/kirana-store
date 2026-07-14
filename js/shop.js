@@ -156,9 +156,9 @@ function selectVariant(productId, vi) {
   if (!product) return;
 
   const variantLabel = chips[vi]?.textContent.trim() || "";
-  const basePrice    = parseFloat(product.price);
-  let variantPrice   = basePrice;
-  let variantMrp     = product.mrp ? parseFloat(product.mrp) : 0;
+  const basePrice = parseAmount(product.price);
+  let variantPrice = basePrice;
+  let variantMrp = parseAmount(product.mrp, basePrice);
   const baseUnit     = parseBaseUnit(product.unit);
 
   if (baseUnit) {
@@ -199,6 +199,11 @@ function changeLocalQty(id, delta) {
   el.textContent = val;
 }
 
+function parseAmount(value, fallback = 0) {
+  const num = parseFloat(String(value || "").replace(/[₹,\s]/g, ""));
+  return isNaN(num) ? fallback : num;
+}
+
 function addToCart(id) {
   const product = allProducts.find(p => String(p.id) === String(id));
   const qty     = parseInt(document.getElementById(`qty-${id}`).textContent);
@@ -206,20 +211,42 @@ function addToCart(id) {
   if (qty === 0) { alert("Please select quantity first! / ముందుగా పరిమాణం ఎంచుకోండి!"); return; }
   if (!product)  { alert("Item not found. Please refresh the page. / పేజీని రిఫ్రెష్ చేయండి."); return; }
 
-  const variantWrap    = document.getElementById(`variants-${id}`);
-  let effectivePrice   = parseFloat(product.price);
-  let variantLabel     = "";
+  const variantWrap = document.getElementById(`variants-${id}`);
+
+  let effectivePrice = parseAmount(product.price);
+  let effectiveMrp = parseAmount(product.mrp, effectivePrice);
+  let variantLabel = "";
+
   if (variantWrap) {
-    const dp = parseFloat(variantWrap.dataset.variantPrice);
-    if (!isNaN(dp) && dp > 0) effectivePrice = dp;
+    const dp = parseAmount(variantWrap.dataset.variantPrice);
+    const dm = parseAmount(variantWrap.dataset.variantMrp);
+
+    if (dp > 0) {
+      effectivePrice = dp;
+    }
+
+    if (dm > 0) {
+      effectiveMrp = dm;
+    } else {
+      effectiveMrp = effectivePrice;
+    }
+
     variantLabel = variantWrap.dataset.variantLabel || "";
   }
 
-  cart[String(id)] = { ...product, id: String(id), price: effectivePrice, qty, variantLabel };
+  cart[String(id)] = {
+    ...product,
+    id: String(id),
+    price: effectivePrice,
+    mrp: effectiveMrp,
+    qty,
+    variantLabel
+  };
+
   updateCartUI();
   const btn = document.getElementById(`addbtn-${id}`);
-  btn.textContent = '✅ Added / జోడించబడింది';
-  btn.classList.add('added');
+  btn.textContent = "✅ Added / జోడించబడింది";
+  btn.classList.add("added");
 }
 
 function updateCartUI() {
@@ -279,9 +306,20 @@ function renderCartDrawer() {
       </div>
     </div>`;
   }).join('');
+  const total = items.reduce((s, i) => {
+    const price = parseAmount(i.price);
+    const qty = parseInt(i.qty) || 0;
+    return s + price * qty;
+  }, 0);
 
-  const total = items.reduce((s, i) => s + i.price * i.qty, 0);const mrptotal = items.reduce((s, i) => s + i.mrp * i.qty, 0);
-  const discounttotal = mrptotal - total;
+  const mrptotal = items.reduce((s, i) => {
+    const price = parseAmount(i.price);
+    const mrp = parseAmount(i.mrp, price);
+    const qty = parseInt(i.qty) || 0;
+    return s + mrp * qty;
+  }, 0);
+
+  const discounttotal = Math.max(mrptotal - total, 0);
   const grandTotal = parseFloat(total);
   let finalPrice = 0;
   if (grandTotal >= 1000) {
@@ -342,17 +380,20 @@ async function placeOrder() {
   btn.disabled    = true;
   btn.textContent = "Placing order... ఆర్డర్ పెడుతున్నాం...";
 
-  const subtotal = Object.values(cart).reduce(
-    (sum, item) => sum + (item.price * item.qty),
-    0
-  );
+  const subtotal = Object.values(cart).reduce((sum, item) => {
+    const price = parseAmount(item.price);
+    const qty = parseInt(item.qty) || 0;
+    return sum + price * qty;
+  }, 0);
+
+  const totalMRP = Object.values(cart).reduce((sum, item) => {
+    const price = parseAmount(item.price);
+    const mrp = parseAmount(item.mrp, price);
+    const qty = parseInt(item.qty) || 0;
+    return sum + mrp * qty;
+  }, 0);
   
-  const totalMRP = Object.values(cart).reduce(
-    (sum, item) => sum + ((item.mrp || item.price) * item.qty),
-    0
-  );
-  
-  const discount = totalMRP - subtotal;
+  const discount = Math.max(totalMRP - subtotal, 0);
   
   // Free delivery for orders >= 1000
   const shippingFee = subtotal >= 1000 ? 0 : 30;
