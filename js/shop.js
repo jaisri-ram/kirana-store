@@ -406,10 +406,14 @@ async function placeOrder() {
     customer:    { name, phone, address, notes },
     items:       Object.values(cart).map(i => ({
       id:    i.id,
-      name:  i.variantLabel ? `${i.name} - ${i.nameTel} (${i.variantLabel})` : `${i.name} - ${i.nameTel} (${i.unit})`,
-      qty:   i.qty,
+      name:  `${i.name} - ${i.nameTel || ""}`,
+      qty: i.qty,
+      mrp: i.mrp,
       price: i.price,
-      total: i.price * i.qty
+      mrptotal: i.mrp * i.qty,
+      total: i.price * i.qty,
+      disc: (i.mrp - i.price) * i.qty,
+      unit: i.variantLabel ? i.variantLabel : i.unit || "",
     })),
     totalMRP: totalMRP,
     totalDiscount: discount,
